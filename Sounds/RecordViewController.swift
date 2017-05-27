@@ -50,12 +50,28 @@ class RecordViewController: UIViewController, AVAudioRecorderDelegate {
         // Dispose of any resources that can be recreated.
     }
     
+    @IBAction func startRecording(_ sender: UIButton) {
+        if audioRecorder?.isRecording == false {
+            audioRecorder?.record()
+        }
+    }
+    
+    
+    @IBAction func stopRecording(_ sender: UIButton) {
+        if audioRecorder?.isRecording == true {
+            audioRecorder?.stop()
+        }
+    }
+    
     func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
         // TODO: Implement what happens when a recording has finished
+        print(recorder.url)
+        print(recorder.url.lastPathComponent)
     }
     
     func audioRecorderEncodeErrorDidOccur(_ recorder: AVAudioRecorder, error: Error?) {
         // TODO: Implement what happens when an error has occurred
+        print(error)
     }
 
 
