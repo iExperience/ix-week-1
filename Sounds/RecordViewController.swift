@@ -19,6 +19,8 @@ class RecordViewController: UIViewController, AVAudioRecorderDelegate {
 
     var audioRecorder: AVAudioRecorder?
     
+    var soundFileURL: URL?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -38,7 +40,7 @@ class RecordViewController: UIViewController, AVAudioRecorderDelegate {
         let fileManager = FileManager.default
         let paths = fileManager.urls(for: FileManager.SearchPathDirectory.documentDirectory,
                                     in: FileManager.SearchPathDomainMask.userDomainMask)
-        let soundFileURL = paths[0].appendingPathComponent(recordingName)
+        soundFileURL = paths[0].appendingPathComponent(recordingName)
         
         // Initialize some default settings
         let recordSettings =
@@ -49,7 +51,7 @@ class RecordViewController: UIViewController, AVAudioRecorderDelegate {
         
         // Initialize the audio recorder with the filename and settings
         do {
-            try audioRecorder = AVAudioRecorder(url: soundFileURL, settings: recordSettings)
+            try audioRecorder = AVAudioRecorder(url: soundFileURL!, settings: recordSettings)
             audioRecorder?.delegate = self
         } catch {
             // Error!
@@ -87,10 +89,32 @@ class RecordViewController: UIViewController, AVAudioRecorderDelegate {
             // Unlike the startRecording function above, we do not update view state in this method
             // Instead, we wait for the AVAudioRecorder to let our delegate (self, i.e. this ViewController)
             // know whether or not the recording was successful
+            
+            
+            let playVC = storyboard?.instantiateViewController(withIdentifier: "PlayViewController") as? PlayViewController
+            
+            playVC?.soundFileURL = self.soundFileURL
+            
+            self.present(playVC!, animated: true, completion: nil)
+            
+            self.navigationController?.pushViewController(<#T##viewController: UIViewController##UIViewController#>, animated: <#T##Bool#>)
+
         }
     }
     
     @IBAction func resetRecoding(_ sender: Any) {
+        
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
+        if segue.identifier == "navToPlay" {
+            
+            let playVC = segue.destination as? PlayViewController
+            
+            playVC?.soundFileURL = self.soundFileURL
+            
+        }
         
     }
     
@@ -109,6 +133,8 @@ class RecordViewController: UIViewController, AVAudioRecorderDelegate {
         stop.isHidden = true
         play.isHidden = false
         reset.isHidden = false
+        
+        self.performSegue(withIdentifier: "navToPlay", sender: nil)
     }
     
     func audioRecorderEncodeErrorDidOccur(_ recorder: AVAudioRecorder, error: Error?) {
